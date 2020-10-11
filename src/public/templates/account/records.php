@@ -1,0 +1,3 @@
+<div class='account-records' load-action="Records.LOAD">
+    Records Loading...
+</div>
