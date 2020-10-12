@@ -12,6 +12,7 @@ export const ACTIONS_RECORDS: ActionSet = [
             (results:any)=>{
                 console.log(results)
                 if(results.responseType == "Success"){
+                    actionData.event.target.innerHTML = ''
                     this.recordManager = new RecordManager({
                         attachedDomElement: actionData.event.target,
                         structure:[
@@ -135,5 +136,5 @@ export const ACTIONS_RECORDS: ActionSet = [
             console.log(actionData)
             this.recordManager.addNewItem()
         }
-    }    
+    }
 ]
