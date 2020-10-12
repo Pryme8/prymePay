@@ -12,10 +12,15 @@ export const ACTIONS_RECORDS: ActionSet = [
             (results:any)=>{
                 console.log(results)
                 if(results.responseType == "Success"){
+                    actionData.event.target.innerHTML = ''
                     this.recordManager = new RecordManager({
                         attachedDomElement: actionData.event.target,
                         structure:[
-                            { name:'date', label:'Date', default:utilities.getNowDateInputValue, type:'date', required: true },
+                            { name:'date', label:'Date', default:utilities.getNowDateInputValue, type:'date', required: true, sorting:{
+                                enabled: true,
+                                active: true,
+                                direction: RecordManager.SORT_DESC
+                            }},
                             { name:'startedOn', default:null, type:'time', typeAttributes:{step:1800}, required: true },
                             { name:'endedOn', default:null, type:'time', typeAttributes:{step:1800}, required: true },
                             { name:'rate', default:'30.00', type:'money', required: true },
@@ -77,7 +82,7 @@ export const ACTIONS_RECORDS: ActionSet = [
                 if(results.responseType == "Success"){                       
                     item.querySelectorAll('input, textarea').forEach((i:any)=>{
                         i.setAttribute('id', results.newRecordId)
-                        i.setAttribute('change-action', 'Record.UPDATE')
+                        i.setAttribute('change-action', 'Records.UPDATE')
                     })
                     let menu = item.querySelector('span.record-item-menu')
                     console.log(menu.children)
@@ -94,7 +99,7 @@ export const ACTIONS_RECORDS: ActionSet = [
         }
     },
     {
-        name: "Records.SAVE",
+        name: "Records.UPDATE",
          callback:function(actionData:IActionData): void{
             let field = actionData.event.target
             let item = this.getParentNodeByClass(field, 'record-item')
@@ -128,7 +133,8 @@ export const ACTIONS_RECORDS: ActionSet = [
     {
         name: "Records.NEW_ITEM",
         callback:function(actionData:IActionData): void{
+            console.log(actionData)
             this.recordManager.addNewItem()
         }
-    }    
+    }
 ]

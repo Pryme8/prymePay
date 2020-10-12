@@ -95,15 +95,18 @@ export class Core{
         }
     }
         
-    getFormData(target: Element) : any{
-        target = target
+    getFormData(target: string|Element) : any{
+        target = document.getElementById(target as string) || target
         if(!target){
             return false
         }
-        let data: any = {}
-        target.querySelectorAll('input, textarea').forEach(
-            (i)=>{
-                data[i.getAttribute('fieldId')] = (i as HTMLInputElement).value
+
+        let data: any = {};
+
+        (target as any).querySelectorAll('input, textarea').forEach(
+            (el:any)=>{
+                console.log(el.getAttribute('fieldId'))
+                data[el.getAttribute('fieldId')] = el.value || el.getAttribute('value') || null
             }
         )                        
         console.log(data, target)

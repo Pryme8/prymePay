@@ -99,6 +99,30 @@
     $itemsTotal = 0;
     $itemsDiscountTotal = 0;
     echo "<div class='items'>";
+
+    // $groupedRecords = array();
+    // foreach($recordData as $record){
+    //     if(!isset($groupedRecords[$record['date']])){
+    //         $groupedRecords[$record['date']] = array();
+    //     }
+
+    //     $found = false;
+    //     $i=0;
+    //     foreach($groupedRecords[$record['date']] as $daysRecord){
+    //         if($daysRecord[0]['description'] == $record['description']){
+    //             $found = true;                
+    //             break;
+    //         }
+    //         $i++;
+    //     }
+    //     if($found){
+    //         array_push($groupedRecords[$record['date']][$i], $record);
+    //     }else{
+    //         $groupedRecords[$record['date']][] = [$record];
+    //     }
+    // }
+    // print_r($groupedRecords);
+
     foreach($recordData as $record){
         echo "<div class='item'>";
             (new Field(

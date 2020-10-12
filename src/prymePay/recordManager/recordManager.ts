@@ -8,9 +8,12 @@ export interface IRecordManagerParams{
 
 export class RecordManager{
 
+    static SORT_DESC: number = 0
+    static SORT_ASCE: number = 0
+
     static SortingTypes = {
-        DATE_ASCENDING  : (a:any, b:any)=>{ return (new Date(a.recordData.date)).valueOf() - (new Date(b.recordData.date)).valueOf() },
-        DATE_DESCENDING : (a:any, b:any)=>{ return (new Date(b.recordData.date)).valueOf() - (new Date(a.recordData.date)).valueOf() }
+        DATE_DESCENDING : (a:any, b:any)=>{ return (new Date(a.recordData.date)).valueOf() - (new Date(b.recordData.date)).valueOf() },
+        DATE_ASCENDING  : (a:any, b:any)=>{ return (new Date(b.recordData.date)).valueOf() - (new Date(a.recordData.date)).valueOf() }
     }
 
     static TypeConversion = (type:string)=>{
@@ -22,58 +25,74 @@ export class RecordManager{
         }
     }
 
-    // static TestRegexType = (value)=>{
-    //     console.log(value)
-    //     let date = RegExp('^20[0-9]{2}-[0-1][0-2]-[0-3]?[0-9]');
-    //     console.log(date.test(value))
-    //     if(date.test(value)){
-    //         return 'date'
-    //     }
-    //     let money = RegExp('^\d+(?:\.\d{0,2})?$');
-    //     if(money.test(value) || value === 0){
-    //         return 'money'
-    //     }
-    //     let time = RegExp('[0-2]{1}[0-9]{1}:[0-5]{1}[0-9]{1}:[0-5]{1}[0-9]{1}');
-    //     if(time.test(value)){
-    //         return 'time'
-    //     }      
+    static GetDefaultSortingTypes = (type:string)=>{
+        switch(type){
+            case 'date':
+                return [ RecordManager.SortingTypes.DATE_DESCENDING, RecordManager.SortingTypes.DATE_ASCENDING ]            
+        }
+    }
 
-    //     return 'text'
-    // }
     public params: IRecordManagerParams
-    public records: any
+    public records: Array<any>
     public structure: RecordManagerStructure
     public attachedDomElement?: HTMLElement
     public list?: HTMLElement
+    public wrapper?: HTMLElement
 
-    constructor(params: IRecordManagerParams, records:any){
+    constructor(params: IRecordManagerParams, records:Array<any> = []){
         this.params = params
         this.records = records
         this.structure = params.structure 
+
+        this.structure.forEach(s=>{
+            if(s.sorting?.enabled && s.sorting?.active){
+                if(s.sorting.customFunctions){
+                    this.sort((s.sorting.direction)?s.sorting.customFunctions.descending : s.sorting.customFunctions.ascending)
+                }else{
+                    this.sort(RecordManager.GetDefaultSortingTypes(s.type)[s.sorting.direction])
+                }
+            }
+        })
+
         this.attachedDomElement = params.attachedDomElement || null
         this.list = null;
         if(this.attachedDomElement){
-            this.updateHtml()
+            this.updateHtml(true)
         }
     }   
 
-    sort(type: number){   
+    sort(type:any): Array<any>{
         return this.records.sort(type)
     }
     
     delete(index: number){
+        (this.records.splice(index, 1)[0])
         this.updateHtml()
     }
 
-    updateHtml(){
+    updateHtml(fullUpdate = false){
+        let wrapper = this.wrapper
+        if(fullUpdate){
+            if(wrapper){
+                wrapper.remove()
+            }
+            this.wrapper = wrapper = document.createElement('div')
+            wrapper.classList.add('record-list-wrapper')
+            wrapper.appendChild(this._generateHead())
+        }
+        if(this.list){
+            this.list.remove()
+        }
         let list = this.list = document.createElement('div')
         list.classList.add('record-list')
-        list.appendChild(this._generateItemHead())
+        
         this.records.forEach((r:any, i:number) => {
             list.appendChild(this._generateItem(r, i, r.id))
         })
-        this.attachedDomElement.innerHTML = ''
-        this.attachedDomElement.appendChild(list)
+        wrapper.appendChild(list)
+        if(fullUpdate){           
+            this.attachedDomElement.appendChild(wrapper)
+        }
     }
 
     addNewItem(){
@@ -122,25 +141,39 @@ export class RecordManager{
             }
         })
         return form
-    }
+    }  
 
+    _generateHead(): HTMLElement{
+        this.structure.forEach(s=>{
+            if(s.sorting?.enabled){
+                let sortMenu: HTMLDivElement = document.createElement('div')
+                sortMenu.classList.add('records-sorting-menu')
+                
+            }   
+        })
 
-    _generateItemHead(){
-        let itemHead = document.createElement('div')
+        let itemHead: HTMLDivElement = document.createElement('div')
         itemHead.classList.add('record-item-header')
-        let head = document.createElement('span')
+        let head: HTMLSpanElement = document.createElement('span')
         head.classList.add('record-item-head')
         head.innerHTML = 'record #'
         itemHead.appendChild(head)
-
-        this.structure.forEach(s=>{
+        this.structure.forEach((s, i)=>{
             head = document.createElement('span')
             head.classList.add('record-item-head')
-            head.setAttribute('id', s.name+'-header')
-            console.log(head)
-            head.innerHTML = s.label || s.name                
-            itemHead.appendChild(head)
-            console.log(s)
+            head.setAttribute('id', s.name+'-header')             
+            if(s.sorting?.enabled){
+                head.classList.add('sortable', (s.sorting.direction)?'descending':'ascending')
+                let link = document.createElement('a')
+                link.setAttribute('href', '#')
+                link.innerHTML = s.label || s.name
+                link.setAttribute('click-action', 'Sorting.TOGGLE_HEADER')
+                link.setAttribute('s-id', i+'')
+                head.appendChild(link)
+            }else{
+                head.innerHTML = s.label || s.name
+            }        
+            itemHead.appendChild(head)           
         })
 
         head = document.createElement('span')
@@ -182,7 +215,7 @@ export class RecordManager{
                 fValue.setAttribute('cols', '60')
 
                 if(record){
-                    fValue.setAttribute('change-action', 'Account-Record:UPDATE')
+                    fValue.setAttribute('change-action', 'Records.UPDATE')
                 }
                 
                 if(index>=0){
@@ -197,13 +230,13 @@ export class RecordManager{
                 }
                 field.appendChild(fValue)
             } else{
-                let fValue = document.createElement('input')
+                let fValue: HTMLInputElement = document.createElement('input')
                 fValue.classList.add('record-item-field-value')
                 let id = (record)?record.id:'new'
                 fValue.setAttribute('id',id)
                 fValue.setAttribute('fieldId', s.name)
                 if(record){
-                    fValue.setAttribute('change-action', 'Account-Record:UPDATE')
+                    fValue.setAttribute('change-action', 'Records.UPDATE')
                 }
                 if(record){
                     console.log(record.recordData)
@@ -222,8 +255,22 @@ export class RecordManager{
                 
                 let type = s.type
                 if( type == "money" ){  
-                    fValue.setAttribute('min', '0.01')
-                    fValue.setAttribute('step','0.01')
+                    fValue.setAttribute('min', '0.00')
+                    fValue.setAttribute('step','0.01')          
+                    fValue.addEventListener('input', (e)=>{
+                        let n:number = Number((e.target as HTMLInputElement).value);
+                        if(n == null || n === 0){
+                            fValue.value ='0.00'
+                        }else{
+                            if(n % 1 === 0){
+                                fValue.value+='.00'
+                                if(fValue.value==='.00'){
+                                    fValue.value ='0.00'
+                                }
+                            }
+                        }
+                    })
+                    fValue.classList.add('money-input')
                 }
                 fValue.setAttribute('type', RecordManager.TypeConversion(s.type))
                 if(s.typeAttributes){
@@ -242,7 +289,7 @@ export class RecordManager{
         if(!record){
             let save = document.createElement('a')
             save.setAttribute('href', '#')
-            save.setAttribute('click-action', 'Account-Record:SAVE')
+            save.setAttribute('click-action', 'Records.SAVE')
             save.setAttribute('record-id', 'new')
             save.setAttribute('record-index', 'new')
             save.innerHTML = 'save'
@@ -255,7 +302,7 @@ export class RecordManager{
         let del = document.createElement('a')
         del.setAttribute('href', '#')
         del.innerHTML = 'delete'
-        del.setAttribute('click-action', 'Account-Record:DELETE')
+        del.setAttribute('click-action', 'Records.DELETE')
         del.setAttribute('record-id', (record)?record.id:'new')
         del.setAttribute('record-index', index+'')
         field.appendChild(del)

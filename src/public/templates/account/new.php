@@ -4,11 +4,17 @@ class InputText{
         $id = $params['id'];
         $value = $params['value'];
         $type = $params['type'] || 'text';
+        $fieldId = $params['id'];
         echo "<div>";
-        if(isset($params['label'])){
-            echo "<span>".$params['label']." : </span>";
-        }
-        echo "<input id='$id' type='$type' value='$value' /></div>";
+            if(isset($params['label'])){
+                echo "<span>".$params['label']." : </span>";
+            }
+            echo "<input id='$id' type='$type' fieldId='$fieldId' ";
+            if($value != ''){
+                echo "value='$value'";
+            }
+            echo " />";
+        echo "</div>";
     }
 }
 ?>
