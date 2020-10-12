@@ -8,6 +8,9 @@ export interface IRecordManagerParams{
 
 export class RecordManager{
 
+    static SORT_DESC: number = 0
+    static SORT_ASCE: number = 0
+
     static SortingTypes = {
         DATE_ASCENDING  : (a:any, b:any)=>{ return (new Date(a.recordData.date)).valueOf() - (new Date(b.recordData.date)).valueOf() },
         DATE_DESCENDING : (a:any, b:any)=>{ return (new Date(b.recordData.date)).valueOf() - (new Date(a.recordData.date)).valueOf() }
@@ -19,6 +22,13 @@ export class RecordManager{
                 return 'number'
             default:
                 return type
+        }
+    }
+
+    static GetDefaultSortingTypes = (type:string)=>{
+        switch(type){
+            case 'date':
+                return [ RecordManager.SortingTypes.DATE_DESCENDING, RecordManager.SortingTypes.DATE_ASCENDING ]            
         }
     }
 
@@ -50,6 +60,17 @@ export class RecordManager{
         this.params = params
         this.records = records
         this.structure = params.structure 
+
+        this.structure.forEach(s=>{
+            if(s.sorting.enabled && s.sorting.active){
+                if(s.sorting.customFunctions){
+                    this.sort((s.sorting.direction)?s.sorting.customFunctions.descending : s.sorting.customFunctions.ascending)
+                }else{
+                    this.sort(RecordManager.GetDefaultSortingTypes(s.type)[s.sorting.direction])
+                }
+            }
+        })
+
         this.attachedDomElement = params.attachedDomElement || null
         this.list = null;
         if(this.attachedDomElement){
@@ -57,7 +78,8 @@ export class RecordManager{
         }
     }   
 
-    sort(type: number){   
+    sort(type: Function){
+        console.log('sorting!')   
         return this.records.sort(type)
     }
     
@@ -136,11 +158,13 @@ export class RecordManager{
         this.structure.forEach(s=>{
             head = document.createElement('span')
             head.classList.add('record-item-head')
-            head.setAttribute('id', s.name+'-header')
-            console.log(head)
-            head.innerHTML = s.label || s.name                
-            itemHead.appendChild(head)
-            console.log(s)
+            head.setAttribute('id', s.name+'-header')             
+            if(s.sortable){
+                itemHead.classList.add('sortable')
+            }else{
+                head.innerHTML = s.label || s.name
+            }        
+            itemHead.appendChild(head)           
         })
 
         head = document.createElement('span')
