@@ -81,7 +81,7 @@ export const ACTIONS_RECORDS: ActionSet = [
                 if(results.responseType == "Success"){                       
                     item.querySelectorAll('input, textarea').forEach((i:any)=>{
                         i.setAttribute('id', results.newRecordId)
-                        i.setAttribute('change-action', 'Record.UPDATE')
+                        i.setAttribute('change-action', 'Records.UPDATE')
                     })
                     let menu = item.querySelector('span.record-item-menu')
                     console.log(menu.children)
@@ -132,6 +132,7 @@ export const ACTIONS_RECORDS: ActionSet = [
     {
         name: "Records.NEW_ITEM",
         callback:function(actionData:IActionData): void{
+            console.log(actionData)
             this.recordManager.addNewItem()
         }
     }    

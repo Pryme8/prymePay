@@ -62,7 +62,7 @@ export class RecordManager{
         this.structure = params.structure 
 
         this.structure.forEach(s=>{
-            if(s.sorting.enabled && s.sorting.active){
+            if(s.sorting?.enabled && s.sorting?.active){
                 if(s.sorting.customFunctions){
                     this.sort((s.sorting.direction)?s.sorting.customFunctions.descending : s.sorting.customFunctions.ascending)
                 }else{
@@ -159,8 +159,12 @@ export class RecordManager{
             head = document.createElement('span')
             head.classList.add('record-item-head')
             head.setAttribute('id', s.name+'-header')             
-            if(s.sortable){
-                itemHead.classList.add('sortable')
+            if(s.sorting?.enabled){
+                itemHead.classList.add('sortable', (s.sorting.direction)?'descending':'ascending')
+                let link = document.createElement('a')
+                link.setAttribute('href', '#')
+                link.innerHTML = s.label || s.name
+                head.appendChild(link)
             }else{
                 head.innerHTML = s.label || s.name
             }        
@@ -206,7 +210,7 @@ export class RecordManager{
                 fValue.setAttribute('cols', '60')
 
                 if(record){
-                    fValue.setAttribute('change-action', 'Account-Record:UPDATE')
+                    fValue.setAttribute('change-action', 'Records.UPDATE')
                 }
                 
                 if(index>=0){
@@ -221,13 +225,13 @@ export class RecordManager{
                 }
                 field.appendChild(fValue)
             } else{
-                let fValue = document.createElement('input')
+                let fValue: HTMLInputElement = document.createElement('input')
                 fValue.classList.add('record-item-field-value')
                 let id = (record)?record.id:'new'
                 fValue.setAttribute('id',id)
                 fValue.setAttribute('fieldId', s.name)
                 if(record){
-                    fValue.setAttribute('change-action', 'Account-Record:UPDATE')
+                    fValue.setAttribute('change-action', 'Records.UPDATE')
                 }
                 if(record){
                     console.log(record.recordData)
@@ -266,7 +270,7 @@ export class RecordManager{
         if(!record){
             let save = document.createElement('a')
             save.setAttribute('href', '#')
-            save.setAttribute('click-action', 'Account-Record:SAVE')
+            save.setAttribute('click-action', 'Records.SAVE')
             save.setAttribute('record-id', 'new')
             save.setAttribute('record-index', 'new')
             save.innerHTML = 'save'
@@ -279,7 +283,7 @@ export class RecordManager{
         let del = document.createElement('a')
         del.setAttribute('href', '#')
         del.innerHTML = 'delete'
-        del.setAttribute('click-action', 'Account-Record:DELETE')
+        del.setAttribute('click-action', 'Records.DELETE')
         del.setAttribute('record-id', (record)?record.id:'new')
         del.setAttribute('record-index', index+'')
         field.appendChild(del)
