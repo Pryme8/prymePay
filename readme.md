@@ -1,6 +1,6 @@
 # PrymePay
 
-A simple LAMP stack account invoicing software.
+A simple LAMP account invoicing software.
 
 ### Dev Log
 
