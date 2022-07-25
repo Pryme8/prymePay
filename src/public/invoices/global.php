@@ -21,6 +21,11 @@
         $range = $data['range'];
     }
 
+    $recordIds = false;
+    if(isset($data['recordIds'])){
+        $recordIds = json_decode($data['recordIds'], false);
+    }
+
     $showInvoiced = 0;
     if(isset($data['showInvoiced'])){
         $showInvoiced = $data['showInvoiced'];
@@ -42,7 +47,7 @@
     $accountData=array();    
     if ($result = mysqli_query($link, "SELECT * FROM accounts WHERE id=$accountId AND historic=0")){
         if(!mysqli_num_rows($result)){
-            echo "ERROR!";
+            echo "No Accounts!";
             exit();
         }
         while ($row = $result->fetch_object()){
@@ -61,7 +66,13 @@
     $_recordData = array();
 
     if($page == 'new'){
-        $query = "SELECT recordData FROM records WHERE accountId=$accountId AND invoiced=$showInvoiced AND historic=0";
+        $query = "SELECT id, recordData FROM records WHERE accountId=$accountId AND invoiced=$showInvoiced AND historic=0";
+
+        if($recordIds){
+            foreach($recordIds as $rid){
+                $query = "SELECT id, recordData FROM records WHERE accountId=$accountId AND id IN (" . implode(',', array_map('intval', $recordIds)) . ")";
+            }
+        }
 
         if($range){
             //make range query
@@ -86,11 +97,16 @@
     }
 
     $recordData = array();
+    $_recordIds = array();
     foreach($_recordData['records'] as $k => $v){
         $record = json_decode($v->recordData, true);
+        $_recordIds[] = $v->id;
         foreach($record as $rk => $rv){
             $record[$rk] = htmlspecialchars_decode(urldecode($rv));
         }
         array_push($recordData, $record);    
     }
+    // $_GET['recordIds'] = json_encode($_recordIds);
+    // $newUrl =  $_SERVER['PHP_SELF']."?".http_build_query($_GET);
+    $saveLink = htmlspecialchars_decode(urlencode("page=view&accountId=$accountId&dateOfInvoice=$dateOfInvoice&invoiceIds=".json_encode($_recordIds)."&noteToClient=$noteToClient"));
 ?>

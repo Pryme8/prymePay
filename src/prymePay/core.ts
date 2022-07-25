@@ -113,8 +113,7 @@ export class Core{
         return data
     }
         
-    fetchQuery(type: string, process: string, data: any = null, onSuccess: Function = null, onError: Function = null): void{   
-                 
+    fetchQuery(type: string, process: string, data: any = null, onSuccess: Function = null, onError: Function = null): void{                 
         let url = './process/'+((type=="POST")?'post/':'get/')+process+'.php'
         fetch(url, 
         {

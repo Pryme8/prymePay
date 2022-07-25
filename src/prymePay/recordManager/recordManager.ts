@@ -256,20 +256,31 @@ export class RecordManager{
                 let type = s.type
                 if( type == "money" ){  
                     fValue.setAttribute('min', '0.00')
-                    fValue.setAttribute('step','0.01')          
-                    fValue.addEventListener('input', (e)=>{
+                    fValue.setAttribute('step','0.01')    
+                    let _moneyFix = (e:Event)=>{
                         let n:number = Number((e.target as HTMLInputElement).value);
                         if(n == null || n === 0){
                             fValue.value ='0.00'
                         }else{
-                            if(n % 1 === 0){
-                                fValue.value+='.00'
-                                if(fValue.value==='.00'){
-                                    fValue.value ='0.00'
-                                }
+                            let tempV = fValue.value.split('.')
+                            if(tempV.length==1){
+                                fValue.value = tempV[0]+'.00'
+                            }else{
+                                let cents = tempV[1].substr(0,2)
+                                cents = (cents.length==1)?cents+'0':cents
+                                fValue.value = tempV[0]+'.'+cents
                             }
+                            console.log(tempV, fValue)
+                            // if(n % 1 === 0){
+                            //     fValue.value+='.00'
+                            //     if(fValue.value==='.00'){
+                            //         fValue.value ='0.00'
+                            //     }
+                            // }
                         }
-                    })
+                    }                    
+                    fValue.addEventListener('change', (e)=>{_moneyFix(e)})
+                    fValue.addEventListener('blur', (e)=>{_moneyFix(e)})
                     fValue.classList.add('money-input')
                 }
                 fValue.setAttribute('type', RecordManager.TypeConversion(s.type))

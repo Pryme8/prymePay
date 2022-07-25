@@ -76,7 +76,20 @@
 .thin-line:nth-child(5){
     margin-top: 3.85em;
 }
+
+.company-footer{
+    position: relative;
+    transform: scale(0.65) translate(25%, 0);
+    top: 16px;
+}
+
+.company-bank{
+    font-size: 0.8em;
+}
+
+
 </style>
+
 <div class='invoice-summary'>
     <div class='summary-block'>
         <div class='total-labels'>
@@ -103,4 +116,27 @@
     </div>
     <div class='invoice-due-label'>Due Date:</div>
     <div class='invoice-due'>Upon Receipt</div>
+</div>
+
+<div class='company-footer'>
+    <div class='company-logo'>
+    </div>
+    <div class='company-data'>
+        <div class='company-name'>
+            PrymeDesign, LLC
+        </div>
+        <div class='thin-line-break'></div>
+        <div class='company-agent'>
+            &nbsp 1903 B St. Apt B<br>
+            &nbsp Eureka CA, 95501<br>
+            &nbsp EIN 85-2920103<br>
+            <div class='company-bank'>
+            &nbsp BANK: JPMORGAN CHASE BANK, N.A.<br>
+            &nbsp SWIFT: CHASUS33<br>
+            &nbsp ACCOUNT NAME: PrymeDesign LLC<br>
+            &nbsp ACCOUNT NUMBER: 658028318<br>
+            &nbsp ROUTING NUMBER: 322271627<br>
+            </div>
+        </div>
+    </div>
 </div>

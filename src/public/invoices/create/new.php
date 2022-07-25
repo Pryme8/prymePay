@@ -17,7 +17,9 @@
         -webkit-box-sizing: inherit;
         -moz-box-sizing: inherit;
         box-sizing: inherit;
-        }    
+        -webkit-print-color-adjust: exact !important;   /* Chrome, Safari */
+        color-adjust: exact !important;                 /*Firefox*/
+        } 
 
         @media screen {
             .invoice{
@@ -66,10 +68,11 @@
             ?>
         </div>
         <div class='invoice-menu'>
-            <a href='#'>Save</a><span> | </span> 
+            <a href='#' click-action="Invoice.SAVE" params-string="<?php echo $saveLink; ?>" account-id="<?php echo $accountId; ?>">Save</a><span> | </span> 
             <a href='#'>Export</a><span> | </span>
             <a href='#'>Save and Export</a>
         </div>
+        <script src='../../js/pay.js'></script>
     </body>
 </html>
 
